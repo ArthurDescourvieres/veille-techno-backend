@@ -4,7 +4,7 @@ globs:
 alwaysApply: true
 ---
 
-Je compte faire le projet avec Spring Boot pour l'instant et par la suite j'envisagerai peut etre de tester le meme projet en Nest Js. C'est donc pourquoi pour l'instant on va développer le projet spring boot dans un sous dossier ./spring-boot attention à ne pas se tromper lors d'execution de commandes dans le terminal. 
+Je compte faire le projet avec Spring Boot pour l'instant et par la suite j'envisagerai peut etre de tester le meme projet en Nest Js. C'est donc pourquoi pour l'instant on va développer le projet spring boot dans un sous dossier ./spring-boot attention à ne pas se tromper lors d'execution de commandes dans le terminal. Il est important de prendre en compte que c'est mon premier projet en Java et donc en SpringBoot également.
 
 
 # Objectif du projet
