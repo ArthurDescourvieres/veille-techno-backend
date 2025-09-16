@@ -2,6 +2,8 @@ Ce qu’il manque pour coller à la consigne et à Spring Security
 
 Rôles: la consigne demande des rôles. Il faut un champ roles (par exemple un Set<Role> ou Set<String>).
 Sérialisation: protéger le mot de passe à l’export JSON (@JsonIgnore sur password).
+
+
 Validation: ajouter des contraintes Bean Validation:
 @Email + @NotBlank sur email
 @NotBlank + éventuellement @Size(min=8) sur password
