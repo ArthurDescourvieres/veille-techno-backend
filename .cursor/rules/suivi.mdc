@@ -1,0 +1,55 @@
+---
+description: Cette rule permet d'indiquer l'avancé de l'utilisateur sur son exercice, il peut etre utile de consulter cette rule dans le cas ou la discussion porte sur l'avancée du travail.
+alwaysApply: false
+---
+
+## Suivi d'avancement – API Kanban (Spring Boot)
+
+### Stratégie
+- **Approche par tranches verticales**: terminer chaque domaine end-to-end avant de passer au suivant.
+- **Ordre prévu**: `User` → `Board/List` → `Card/Task`.
+
+### Tranche en cours: User (end-to-end)
+- **Objectif**: couvrir DTO + validation, Repository JPA, Service (règles métier), Controller + routes + Swagger, Tests (service + web) et données d’init.
+
+#### Checklist User
+- [x] Entité `User` (JPA) créée
+- [ ] DTOs `UserCreate`, `UserUpdate` avec validation Bean Validation
+- [ ] Mapper (entité ⇄ DTO)
+- [ ] Repository JPA `UserRepository` (en cours)
+- [ ] Service `UserService` avec règles métier (création, recherche, mise à jour partielle, suppression éventuelle)
+- [ ] Controller `UserController` avec routes:
+  - [ ] POST `/api/auth/register`
+  - [ ] POST `/api/auth/login` (avec sécurité JWT, peut arriver plus tard)
+  - [ ] PATCH `/api/users/{id}`
+- [ ] Swagger: documentation visible sous `/api` (springdoc-openapi)
+- [ ] Tests unitaires service
+- [ ] Tests web (MockMvc)
+- [ ] Données d’init (SQL/fixtures) pour l’environnement de dev/test
+- [ ] Sécurité JWT (Spring Security) et rôles (USER/ADMIN)
+
+#### Statut actuel
+- Entité `User` terminée.
+- Début de la structure `UserRepository`.
+
+#### Prochaines étapes courtes (User)
+- Créer DTOs + validations (`@Email`, `@NotBlank`, `@Size` sur password).
+- Finaliser `UserRepository` (méthodes de base, ex: `findByEmail`).
+- Implémenter `UserService` (règles: unicité email, hashage password, etc.).
+- Ajouter `UserController` + routes et documentation Swagger.
+- Mettre en place les tests (service + web) et des données d’init.
+
+### Tranches suivantes
+- **Board/List**: modèle `List` (title, position, ownerId), CRUD minimal, positionnement, tests.
+- **Card/Task**: modèle `Card` (title, description, position, listId), CRUD, déplacement entre listes, tests.
+
+### Liens / Emplacements
+- Code Spring Boot: `spring-boot/kanban-api/kanban-api`
+- Fichier de config: `spring-boot/kanban-api/kanban-api/src/main/resources/application.properties`
+
+### Definition of Done (par tranche)
+- Endpoints REST opérationnels et documentés (Swagger).
+- Validations et règles métier en place.
+- Tests verts (service + web) et données d’init.
+- Sécurité appliquée lorsque nécessaire (JWT/roles pour User).
+
