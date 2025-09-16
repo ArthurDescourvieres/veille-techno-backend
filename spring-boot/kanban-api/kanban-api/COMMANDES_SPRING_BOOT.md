@@ -4,6 +4,9 @@
 
 ### Compilation et exécution
 ```bash
+# Accéder au directory et lancer le serveur
+cd spring-boot/kanban-api/kanban-api && ./mvnw spring-boot:run
+
 # Compiler le projet
 mvn compile
 
