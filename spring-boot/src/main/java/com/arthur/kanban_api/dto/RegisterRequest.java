@@ -18,7 +18,6 @@ public class RegisterRequest {
     private String password;
 
     @Schema(description = "Rôle de l'utilisateur (optionnel, par défaut ROLE_USER)", example = "ROLE_USER")
-    // Optionnel: si non fourni on mettra ROLE_USER
     private String role;
 
     public RegisterRequest() {}
