@@ -27,7 +27,7 @@ public class DataInitializer {
                     User user = new User();
                     user.setEmail(email);
                     user.setPassword(passwordEncoder.encode("Motdepasse123"));
-                    user.setRole("USER");
+                    user.setRole("ROLE_USER");
                     userRepository.save(user);
                 });
         };
