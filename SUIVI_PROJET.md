@@ -9,6 +9,8 @@
   - `CustomUserDetailsService` basé sur `UserRepository`.
   - `JwtService` (signature HS256, secret + expiration en properties).
   - Règles: `permitAll` sur `/api/auth/**`, `/api`, `/api/docs/**`, `/v3/api-docs/**`, `/swagger-ui/**`, le reste `authenticated`.
+  - `httpBasic` et `formLogin` désactivés → plus de redirection vers `/login`; les endpoints protégés renvoient `401` sans UI de login.
+  - Swagger UI reste public; l'autorisation se fait via le bouton "Authorize" avec un token JWT.
 
 ### Modèles (Entities)
 - **User** (`id`, `email` unique, `password` hashé, `role`, `createdAt`, `updatedAt`).
@@ -53,12 +55,10 @@
   - JWT: `app.security.jwt.secret` (env var avec défaut), `app.security.jwt.expiration=3600000`.
   - Logs sécurité: niveau DEBUG.
 - `docker-compose.yml`: service `db` (postgres:17), volume `pg_data`, healthcheck.
+ - `SecurityConfig`: `SessionCreationPolicy.STATELESS`, `httpBasic().disable()`, `formLogin().disable()`, chaînes `permitAll` pour la doc Swagger.
 
 ### Reste à faire (prochaines étapes)
-- **Doc Swagger**: compléter descriptions/schemas pour tous les endpoints (incl. Cards).
-- **Tests**: unitaires (services) et web (MockMvc) pour Auth, Users, Lists, Cards.
 - **README**: guide de lancement et tests via Swagger.
-- **Rôles avancés**: si besoin, clarifier/étendre les autorisations (admin vs user).
 
 ### Endpoints clés (récap)
 - Auth: `POST /api/auth/register`, `POST /api/auth/login`.
