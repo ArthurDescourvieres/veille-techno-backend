@@ -2,7 +2,6 @@ package com.arthur.kanban_api.controller;
 
 import com.arthur.kanban_api.dto.LoginRequest;
 import com.arthur.kanban_api.dto.RegisterRequest;
-import com.arthur.kanban_api.dto.UserResponse;
 import com.arthur.kanban_api.entity.User;
 import com.arthur.kanban_api.security.JwtService;
 import com.arthur.kanban_api.service.UserService;
@@ -11,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,18 +58,6 @@ public class AuthController {
         );
         String token = jwtService.generateToken(payload.getEmail());
         return ResponseEntity.ok(Map.of("token", token));
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<?> me() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getName() == null) {
-            return ResponseEntity.status(401).body(Map.of("error", "Non authentifié"));
-        }
-        String email = authentication.getName();
-        return userService.findByEmail(email)
-                .<ResponseEntity<?>>map(u -> ResponseEntity.ok(new UserResponse(u.getId(), u.getEmail(), u.getRole(), u.getCreatedAt(), u.getUpdatedAt())))
-                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Utilisateur non trouvé")));
     }
 }
 
