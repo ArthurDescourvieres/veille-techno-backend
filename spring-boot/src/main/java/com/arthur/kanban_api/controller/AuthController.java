@@ -1,13 +1,17 @@
 package com.arthur.kanban_api.controller;
 
+import com.arthur.kanban_api.dto.LoginRequest;
+import com.arthur.kanban_api.dto.RegisterRequest;
+import com.arthur.kanban_api.dto.UserResponse;
 import com.arthur.kanban_api.entity.User;
-import com.arthur.kanban_api.service.UserService;
 import com.arthur.kanban_api.security.JwtService;
+import com.arthur.kanban_api.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,27 +37,41 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody User input) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest input) {
         if (userService.existsByEmail(input.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email déjà utilisé"));
         }
-        input.setPassword(passwordEncoder.encode(input.getPassword()));
+        User user = new User();
+        user.setEmail(input.getEmail());
+        user.setPassword(passwordEncoder.encode(input.getPassword()));
         if (input.getRole() == null || input.getRole().isBlank()) {
-            input.setRole("ROLE_USER");
+            user.setRole("ROLE_USER");
+        } else {
+            user.setRole(input.getRole());
         }
-        User saved = userService.save(input);
+        User saved = userService.save(user);
         return ResponseEntity.ok(Map.of("id", saved.getId(), "email", saved.getEmail()));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String password = payload.get("password");
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest payload) {
         Authentication auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
+                new UsernamePasswordAuthenticationToken(payload.getEmail(), payload.getPassword())
         );
-        String token = jwtService.generateToken(email);
+        String token = jwtService.generateToken(payload.getEmail());
         return ResponseEntity.ok(Map.of("token", token));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> me() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getName() == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Non authentifié"));
+        }
+        String email = authentication.getName();
+        return userService.findByEmail(email)
+                .<ResponseEntity<?>>map(u -> ResponseEntity.ok(new UserResponse(u.getId(), u.getEmail(), u.getRole(), u.getCreatedAt(), u.getUpdatedAt())))
+                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("error", "Utilisateur non trouvé")));
     }
 }
 
