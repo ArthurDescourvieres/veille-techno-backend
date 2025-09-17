@@ -7,12 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 public class RegisterRequest {
 
-    @Schema(description = "Adresse email de l'utilisateur", example = "string@gmail.com")
+    @Schema(description = "Adresse email de l'utilisateur", example = "example@gmail.com")
     @Email(message = "Email invalide")
     @NotBlank(message = "L'email est obligatoire")
     private String email;
 
-    @Schema(description = "Mot de passe (minimum 8 caractères)", example = "motdepasse123")
+    @Schema(description = "Mot de passe (minimum 8 caractères)", example = "Motdepasse123")
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères")
     private String password;
