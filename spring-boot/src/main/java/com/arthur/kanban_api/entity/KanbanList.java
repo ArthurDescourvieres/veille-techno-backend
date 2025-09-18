@@ -2,6 +2,8 @@ package com.arthur.kanban_api.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import com.arthur.kanban_api.entity.Card;
+import java.util.List;
 
 @Entity
 @Table(name = "lists")
@@ -20,6 +22,9 @@ public class KanbanList {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @OneToMany(mappedBy = "list", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Card> cards;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
@@ -73,6 +78,14 @@ public class KanbanList {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(List<Card> cards) {
+        this.cards = cards;
     }
 }
 

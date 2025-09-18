@@ -2,6 +2,8 @@ package com.arthur.kanban_api.entity;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "cards")
@@ -22,6 +24,7 @@ public class Card {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private KanbanList list;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

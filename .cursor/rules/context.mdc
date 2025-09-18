@@ -1,0 +1,90 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Project Rules — Kanban Platform
+
+## Vision
+Construire une plateforme Kanban modulaire pour apprendre à utiliser les micro services. Le but est de faire communiquer les deux 
+Phase 1: Backend Spring Boot 3 + PostgreSQL, API REST sécurisée.
+Phase 2: Séparation en microservices. Go servira pour notifications externes et/ou temps réel.
+
+## État actuel
+- Service unique Spring Boot 3.
+- DB: PostgreSQL.
+- Auth: JWT.
+- Swagger/OpenAPI actif.
+- Routes existantes:
+  - Auth: POST /api/auth/login ; POST /api/auth/register
+  - Cards: DELETE /api/cards/{id} ; PATCH /api/cards/{id} ; POST /api/lists/{listId}/cards
+  - Lists: POST /api/lists ; DELETE /api/lists/{id}
+  - Users: PATCH /api/users/{id} ; GET /api/users/me
+
+## Cibles techniques (Phase 1)
+- API v1 stable, versionnée (`/api` → alias de `/api/v1` interne).
+- Sécurité: Spring Security + JWT (RS256 de préférence, JWKS prêt pour Phase 2).
+- Données: JPA/Hibernate, migrations Flyway, clés naturelles évitées, index utiles.
+- Concurrence: optimistic locking (`@Version`) sur entités sujettes au drag&drop.
+- Idempotence: accepter `X-Request-Id` sur mutations.
+- Validation: Bean Validation (@Valid) + messages clairs.
+- Observabilité: `/actuator/health`, métriques Micrometer, logs JSON corrélés (`X-Correlation-Id`).
+- Erreurs: format unique `{timestamp, status, code, message, path, correlationId}`.
+- Tests: unit (Junit5), slice tests WebMvc/DataJpa, tests d’intégration avec Testcontainers.
+- Docs: OpenAPI générée, exemples de requêtes/réponses réalistes.
+
+## Non-objectifs (Phase 1)
+- Pas de multi-tenancy.
+- Pas d’attachements binaires.
+- Pas de “temps réel” lourd (SSE simple possible, WS en Phase 2).
+
+## Qualité et style
+- Java 17, records si pertinents.
+- Architecture: Controller → Service → Repository. DTO en I/O, pas d’entités en exposition.
+- Mapping: MapStruct (ou manuel simple si trivial).
+- Nommage: clair, orienté domaine. Pas d’abréviations opaques.
+- Commits: style Conventional Commits (`feat:`, `fix:`, `chore:`, `test:`).
+- Lint/format: Spotless + Google Java Format.
+
+## Évolutions immédiates à prioriser
+1) Ajout des endpoints manquants pour un CRUD Kanban complet:
+   - Boards: GET/POST/PATCH/DELETE /api/boards
+   - Lists: GET /api/boards/{id}/lists ; PATCH /api/lists/{id}/reorder
+   - Cards: GET /api/lists/{id}/cards ; PATCH /api/cards/{id}/move ; assign/unassign
+2) SSE minimal:
+   - Canal board: `GET /api/boards/{id}/events` (types: CardCreated, CardMoved, CardUpdated, ListReordered).
+3) Sécurité:
+   - RS256 + rotation de clés (préparer endpoint JWKS pour Phase 2).
+4) Tests d’intégration clés:
+   - register/login, create list, create card, move card (optimistic locking), droits basiques (owner vs non-owner).
+
+## Préparation microservices (Phase 2)
+- Découpage:
+  - `kanban-core` (Spring, DB propre).
+  - `notifications` (Go): emails/webhooks; consomme événements.
+  - Option: `realtime-gateway` (Go) pour WS si charge importante.
+- Contrats:
+  - Événements JSON sur broker (Kafka/RabbitMQ):
+    - UserRegistered, BoardCreated, ListReordered, CardCreated, CardMoved, CardAssigned.
+  - Auth: JWT RS256 émis par `kanban-core`, validé par Go via JWKS.
+- Infra:
+  - Dockerfiles par service, docker-compose pour dev, readiness/liveness probes.
+
+## Directives à l’IA (Cursor)
+- Toujours proposer la **plus petite PR utile** et testée.
+- Générer DTO, mappers, validations et exemples Swagger.
+- Respecter le format d’erreur unique et la corrélation d’ID.
+- Pour chaque endpoint ajouté:
+  - Schéma OpenAPI, exemples, tests unitaires + intégration.
+  - Cas d’erreur: 400, 401, 403, 404, 409 (optimistic lock), 422 (validation).
+- Ne pas introduire de dépendances lourdes sans justification.
+- Si une tâche implique Phase 2, **stubber** l’interface événementielle (publisher) mais ne pas lier Kafka/RabbitMQ tant que non planifié.
+
+## Variables et config
+- `APP_SECURITY_JWT_SECRET` (Phase 1 HS256 possible) → migrer RS256/JWKS Phase 2.
+- `SPRING_DATASOURCE_*`, `SPRING_JPA_*`, `SPRING_FLYWAY_*`.
+- `LOG_CORRELATION_HEADER=X-Correlation-Id`.
+
+## Définition de done (Phase 1)
+- Endpoint livré + DTO + validation + tests verts + doc OpenAPI + logs/erreurs conformes + revue de perfs simple (index, N+1 évité).
