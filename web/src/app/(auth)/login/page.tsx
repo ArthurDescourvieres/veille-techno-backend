@@ -49,7 +49,7 @@ export default function LoginPage() {
         sizes="100vw"
         className="object-cover -z-10"
       />
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+      <div className="min-h-[calc(100vh)] flex items-center justify-center px-4">
         <Card className="w-full max-w-sm">
           <CardHeader>
             <CardTitle>Connexion</CardTitle>
