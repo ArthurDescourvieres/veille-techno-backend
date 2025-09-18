@@ -2,6 +2,20 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+### Configuration
+
+1. Copiez `.env.example` vers `.env.local` et configurez l'URL du backend :
+```bash
+cp .env.example .env.local
+```
+
+2. Modifiez `.env.local` si nécessaire :
+```
+BACKEND_URL=http://localhost:8080
+```
+
+### Démarrage
+
 First, run the development server:
 
 ```bash
@@ -15,6 +29,13 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+### Authentification
+
+Le frontend utilise une architecture BFF (Backend for Frontend) :
+- Les routes `/api/auth/*` proxyent vers le backend Spring Boot
+- Le JWT est stocké dans un cookie HttpOnly sécurisé
+- Page de login : `/login`
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
