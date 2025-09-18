@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -18,6 +19,8 @@ type LoginValues = z.infer<typeof LoginSchema>;
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -29,14 +32,29 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginValues) => {
     setIsLoading(true);
-    const parsed = LoginSchema.safeParse(values);
-    if (!parsed.success) {
+    setError(null);
+    
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setError(data.error || "Erreur de connexion");
+        return;
+      }
+      
+      // Redirection vers la page principale après connexion réussie
+      router.push("/");
+    } catch (err) {
+      setError("Erreur de connexion au serveur");
+    } finally {
       setIsLoading(false);
-      return;
     }
-    await new Promise((r) => setTimeout(r, 600));
-    setIsLoading(false);
-    console.log("login:", parsed.data);
   };
 
   return (
@@ -57,6 +75,11 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md" role="alert">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" type="email" autoComplete="email" placeholder="vous@exemple.com" {...register("email")} />
