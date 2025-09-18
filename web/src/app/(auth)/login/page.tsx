@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
@@ -39,36 +40,46 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Connexion</CardTitle>
-          <CardDescription>Accédez à votre espace Kanban.</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" autoComplete="email" placeholder="vous@exemple.com" {...register("email")} />
-              {errors.email && (
-                <p className="text-sm text-red-600" role="alert">{errors.email.message}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Mot de passe</Label>
-              <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" {...register("password")} />
-              {errors.password && (
-                <p className="text-sm text-red-600" role="alert">{errors.password.message}</p>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Connexion…" : "Se connecter"}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+    <div className="relative min-h-[calc(100vh-4rem)]">
+      <Image
+        src="/images/landscape-nature-art-print-mural-wallpaper.jpg"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover -z-10"
+      />
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle>Connexion</CardTitle>
+            <CardDescription>Accédez à votre espace Kanban.</CardDescription>
+          </CardHeader>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" autoComplete="email" placeholder="vous@exemple.com" {...register("email")} />
+                {errors.email && (
+                  <p className="text-sm text-red-600" role="alert">{errors.email.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Mot de passe</Label>
+                <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" {...register("password")} />
+                {errors.password && (
+                  <p className="text-sm text-red-600" role="alert">{errors.password.message}</p>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Connexion…" : "Se connecter"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 }
