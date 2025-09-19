@@ -57,7 +57,50 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(payload.getEmail(), payload.getPassword())
         );
         String token = jwtService.generateToken(payload.getEmail());
-        return ResponseEntity.ok(Map.of("token", token));
+        String refreshToken = jwtService.generateRefreshToken(payload.getEmail());
+        return ResponseEntity.ok(Map.of(
+                "token", token,
+                "refreshToken", refreshToken
+        ));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.substring(7); // Remove "Bearer "
+        
+        if (!jwtService.isRefreshToken(token)) {
+            return ResponseEntity.status(401).body(Map.of("error", "Token de refresh invalide"));
+        }
+        
+        try {
+            String email = jwtService.extractSubject(token);
+            String newToken = jwtService.generateToken(email);
+            String newRefreshToken = jwtService.generateRefreshToken(email);
+            
+            return ResponseEntity.ok(Map.of(
+                    "token", newToken,
+                    "refreshToken", newRefreshToken
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Token expiré"));
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.substring(7); // Remove "Bearer "
+            String email = jwtService.extractSubject(token);
+            
+            // Ici on pourrait ajouter le token à une blacklist
+            // Pour l'instant, on retourne juste un succès
+            // Le token expirera naturellement
+            
+            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+        } catch (Exception e) {
+            // Même si le token est invalide, on considère la déconnexion comme réussie
+            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+        }
     }
 }
 

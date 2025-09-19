@@ -9,51 +9,39 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginSchema = z.object({
   email: z.string().email({ message: "Email invalide" }),
   password: z.string().min(6, { message: "6 caractères minimum" }),
+  rememberMe: z.boolean().optional(),
 });
 
 type LoginValues = z.infer<typeof LoginSchema>;
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
+  const { login, isLoading } = useAuth();
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginValues>({
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "arthur@gmail.com", password: "motdepasse123", rememberMe: false },
     mode: "onBlur",
   });
 
   const onSubmit = async (values: LoginValues) => {
-    setIsLoading(true);
     setError(null);
     
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      
-      const data = await res.json();
-      
-      if (!res.ok) {
-        setError(data.error || "Erreur de connexion");
-        return;
-      }
-      
-      // Redirection vers la page principale après connexion réussie
-      router.push("/");
-    } catch (err) {
-      setError("Erreur de connexion au serveur");
-    } finally {
-      setIsLoading(false);
+    const success = await login(values.email, values.password, values.rememberMe);
+    
+    if (success) {
+      // Redirection vers le dashboard après connexion réussie
+      router.push("/dashboard");
+    } else {
+      setError("Erreur de connexion. Vérifiez vos identifiants.");
     }
   };
 
@@ -93,6 +81,17 @@ export default function LoginPage() {
                 {errors.password && (
                   <p className="text-sm text-red-600" role="alert">{errors.password.message}</p>
                 )}
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="rememberMe"
+                  type="checkbox"
+                  className="rounded border-gray-300"
+                  {...register("rememberMe")}
+                />
+                <Label htmlFor="rememberMe" className="text-sm font-normal">
+                  Rester connecté
+                </Label>
               </div>
             </CardContent>
             <CardFooter>
