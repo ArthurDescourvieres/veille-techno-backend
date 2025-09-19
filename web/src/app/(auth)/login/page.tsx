@@ -86,10 +86,10 @@ export default function LoginPage() {
                 <input
                   id="rememberMe"
                   type="checkbox"
-                  className="rounded border-gray-300"
+                  className="rounded hover:cursor-pointer border-gray-300"
                   {...register("rememberMe")}
                 />
-                <Label htmlFor="rememberMe" className="text-sm font-normal">
+                <Label htmlFor="rememberMe" className="hover:cursor-pointer text-sm font-normal">
                   Rester connecté
                 </Label>
               </div>
