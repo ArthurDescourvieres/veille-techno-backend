@@ -36,11 +36,14 @@ export APP_SECURITY_JWT_SECRET=$(openssl rand -base64 64)
 
 Remarque: vous pouvez aussi fournir une valeur fixe tant qu’elle est longue (≥ 32 octets), par exemple une chaîne base64/hex suffisamment longue.
 
-### 4) Lancer l’API backend (mode développement)
+### 4) Installer les dépendances et lancer l'API backend
 Depuis le dossier `spring-boot`:
 
 ```bash
+# Installer les dépendances Maven
+./mvnw clean install
 
+# Lancer l'API en mode développement
 ./mvnw spring-boot:run
 ```
 
