@@ -1,0 +1,51 @@
+# Fichiers et dossiers à ignorer pour le build Docker
+
+# Répertoires de build et target
+target/
+**/target/
+
+# Dossiers IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs
+logs/
+*.log
+
+# Fichiers temporaires
+*.tmp
+*.temp
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Maven wrapper jar (sera copié explicitement dans le Dockerfile)
+!.mvn/wrapper/maven-wrapper.jar
+
+# Documentation
+*.md
+README*
+
+# Fichiers de test
+**/test-reports/
+**/test-results/
+
+# Node modules (pour éviter les conflits avec nestjs)
+**/node_modules/
+
+# Environnement
+.env*
+!.env.example

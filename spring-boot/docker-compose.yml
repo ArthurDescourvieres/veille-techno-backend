@@ -52,6 +52,34 @@ services:
     volumes:
       - ./nestjs/logs:/app/logs:rw
 
+  spring-boot-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: kanban_springboot
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - APP_SECURITY_JWT_SECRET=${JWT_SECRET:-change-me-please-and-use-32-bytes-min}
+      - APP_SECURITY_JWT_EXPIRATION=${JWT_EXPIRATION:-3600000}
+      - APP_SECURITY_JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION:-604800000}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kanban-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs:rw
+
 networks:
   kanban-network:
     driver: bridge
