@@ -10,11 +10,52 @@ services:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    networks:
+      - kanban-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U kanban -d kanban"]
       interval: 5s
       timeout: 3s
       retries: 10
+      start_period: 10s
+
+  nestjs-api:
+    build:
+      context: ./nestjs
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: kanban_nestjs
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USERNAME=kanban
+      - DB_PASSWORD=kanban
+      - DB_NAME=kanban
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-prod}
+      - PORT=3001
+      - LOG_LEVEL=info
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kanban-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/v1/health/simple"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    volumes:
+      - ./nestjs/logs:/app/logs:rw
+
+networks:
+  kanban-network:
+    driver: bridge
 
 volumes:
   pg_data:
+    driver: local

@@ -1,0 +1,1 @@
+Quand cette commande est utilisé celà signifie que tu dois te servir des mcp server nécessaire pour récupérer des données et du contexte sur le sujet en question. 
