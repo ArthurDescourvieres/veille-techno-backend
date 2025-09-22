@@ -3,7 +3,7 @@ package com.arthur.kanban_api.event;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,8 +19,7 @@ public class KanbanEvent {
     private String eventType;
     
     @JsonProperty("timestamp")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private LocalDateTime timestamp;
+    private String timestamp;
     
     @JsonProperty("source")
     private String source;
@@ -36,7 +35,7 @@ public class KanbanEvent {
 
     public KanbanEvent() {
         this.eventId = UUID.randomUUID().toString();
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = java.time.Instant.now().toString();
         this.source = "spring-boot-api";
         this.version = "1.0";
     }
@@ -69,11 +68,11 @@ public class KanbanEvent {
         this.eventType = eventType;
     }
 
-    public LocalDateTime getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

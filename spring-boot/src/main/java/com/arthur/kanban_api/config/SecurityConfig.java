@@ -37,6 +37,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(registry -> registry
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api", "/api/docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/api/test/**").permitAll()
                 .anyRequest().authenticated()
             )
             .authenticationProvider(daoAuthenticationProvider());
