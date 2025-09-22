@@ -37,8 +37,12 @@ services:
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-prod}
       - PORT=3001
       - LOG_LEVEL=info
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - kanban-network
@@ -51,6 +55,24 @@ services:
     restart: unless-stopped
     volumes:
       - ./nestjs/logs:/app/logs:rw
+
+  redis:
+    image: redis:7-alpine
+    container_name: kanban_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --notify-keyspace-events Ex
+    networks:
+      - kanban-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
   spring-boot-api:
     build:
@@ -67,6 +89,8 @@ services:
       - APP_SECURITY_JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION:-604800000}
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - kanban-network
@@ -86,4 +110,6 @@ networks:
 
 volumes:
   pg_data:
+    driver: local
+  redis_data:
     driver: local
