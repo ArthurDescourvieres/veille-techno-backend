@@ -65,4 +65,5 @@ echo "   • PostgreSQL: localhost:5433"
 echo "   • NestJS API: http://localhost:3001"
 echo "   • Spring Boot API: http://localhost:8080"
 echo "   • Swagger UI Spring Boot: http://localhost:8080/api"
+echo "   • Broker Redis: localhost:6379"
 

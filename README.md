@@ -1,109 +1,70 @@
-## Kanban API (Spring Boot)
+## Kanban Platform (Backend Docker + Frontend local)
 
-API REST de type Kanban (utilisateurs, listes, cartes) développée avec Spring Boot 3. Swagger est disponible pour tester les endpoints.
+Plateforme Kanban modulaire. Le backend (Spring Boot 3 + PostgreSQL, et un service NestJS utilitaire) tourne sous Docker. Le frontend Next.js tourne en local dans le dossier `web` avec `npm run dev`.
 
 ### Prérequis
-- Java 17 (JDK)
 - Docker Desktop (ou Docker Engine) + Docker Compose
 - Git Bash sous Windows (fourni avec Git pour Windows)
+- Java 17 (JDK) installé pour les commandes Maven locales éventuelles
+- Node.js 18+ et npm pour le frontend
+- PostgreSQL 17
 
 ### 1) Cloner le projet
 ```bash
 git clone https://github.com/<votre-compte>/<votre-repo>.git
-cd veille-techno-backend/spring-boot
+cd veille-techno-backend
 ```
 
-### 2) Démarrer la base de données PostgreSQL (Docker)
-Le fichier `spring-boot/docker-compose.yml` expose Postgres en local sur le port 5433 et crée la base `kanban` avec l’utilisateur/mot de passe `kanban/kanban`.
-
+### 2) Lancer le backend en Docker
+Depuis le dossier `spring-boot/`.
 ```bash
 cd spring-boot
+#glisser le fichier docker_start.sh dans votre terminal bash ou entrer la commande suivante dans le répertoire spring-boot :
 docker compose up -d
-# Vérifier que le conteneur est healthy
-docker ps
 ```
 
-La configuration côté application est déjà pointée vers `jdbc:postgresql://localhost:5433/kanban`.
+- Spring Boot API: `http://localhost:8080/api` (Swagger)
+- Actuator health: `http://localhost:8080/actuator/health`
+- PostgreSQL exposé sur `localhost:5433`
+- Broker Redis : localhost:6379
+- NestJS : localhost:3001
 
-### 3) Générer et fournir le secret JWT
-L’application attend une variable d’environnement `APP_SECURITY_JWT_SECRET`. Utilisez un secret d’au moins 32 octets.
+Notes:
+- Le fichier `spring-boot/docker-compose.yml` orchestre PostgreSQL, l’API Spring et le service NestJS.
+- Les secrets JWT peuvent être fournis via variables d’environnement (ex: `APP_SECURITY_JWT_SECRET`).
 
-- Git Bash (recommandé):
+### 3) Lancer le frontend en local
+Depuis le dossier `web/`.
 ```bash
-export APP_SECURITY_JWT_SECRET=$(openssl rand -base64 64)
-# Vous pouvez générer un secret avec cette commande
+cd web
+npm install
+npm run dev
 ```
 
-Remarque: vous pouvez aussi fournir une valeur fixe tant qu’elle est longue (≥ 32 octets), par exemple une chaîne base64/hex suffisamment longue.
+Par défaut: `http://localhost:3000`
 
-### 4) Installer les dépendances et lancer l'API backend
-Depuis le dossier `spring-boot`:
 
+
+### 4) Arrêt et maintenance
 ```bash
-# Installer les dépendances Maven
-./mvnw clean install
+# Arrêter le backend Docker
+cd spring-boot
+docker compose down
 
-# Lancer l'API en mode développement
-./mvnw spring-boot:run
+# Nettoyer images/volumes (optionnel)
+docker system prune -a --volumes
 ```
 
-Par défaut, l’API écoute sur `http://localhost:8080/api`.
-
-
-
-### 6) Comptes de démo (seed)
+### Comptes de démo (seed)
 Au démarrage, si moins de 10 utilisateurs existent, l’application crée des comptes:
 - Emails: `user01@example.com` → `user10@example.com`
 - Mot de passe: `Motdepasse123`
 - Rôle: `USER`
 
+### Endpoints principaux (extraits)
+- Auth: `POST /api/auth/login`, `POST /api/auth/register`
+- Users: `GET /api/users/me`, `PATCH /api/users/{id}`
+- Lists: `POST /api/lists`, `DELETE /api/lists/{id}`
+- Cards: `POST /api/lists/{listId}/cards`, `PATCH /api/cards/{id}`, `DELETE /api/cards/{id}`
 
-### 8) Arrêter la base de données
-```bash
-cd spring-boot
-docker compose down
-```
-
-### Modèle de données et rôles
-
-#### Tables principales
-- **users**
-  - `id`
-  - `email` *(unique)*
-  - `password` *(hashé)*
-  - `role`
-
-- **kanban_lists**
-  - `id`
-  - `title`
-  - `position`
-  - `owner_id` *(FK → users.id)*
-
-- **cards**
-  - `id`
-  - `title`
-  - `description`
-  - `position`
-  - `list_id` *(FK → kanban_lists.id)*
-
----
-
-#### Rôles du projet
-- **USER**
-  - **Authentification**  
-    - Inscription → `POST /api/auth/register`  
-    - Connexion → `POST /api/auth/login`  
-    - Usage du JWT  
-  - **Listes**  
-    - Créer et supprimer ses propres listes  
-  - **Cartes**  
-    - Créer, modifier et supprimer des cartes dans ses propres listes  
-  - **Profil**  
-    - Modifier ses informations (dans les limites prévues)  
-
-- **ADMIN**
-  - Dispose de tous les droits d’un **USER**  
-  - **Gestion utilisateurs**  
-    - Mettre à jour informations et rôles → `PATCH /api/users/{id}`  
-  - **Administration globale**  
-    - Peut gérer toutes les listes et cartes si nécessaire  
+Pour plus de détails, consultez Swagger: `http://localhost:8080/api`.
